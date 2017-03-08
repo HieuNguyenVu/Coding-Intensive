@@ -1,7 +1,7 @@
 var Nakama = {};
 Nakama.configs = {};
 
-window.onload = function(){
+window.onload = function(){//Giống Onstart Android
   Nakama.game = new Phaser.Game(640,960,Phaser.AUTO,'',
     {
       preload: preload,
@@ -13,7 +13,7 @@ window.onload = function(){
 }
 
 // preparations before game starts
-var preload = function(){
+var preload = function(){//Giống hàm OnAttach trong android ->Load vào trong ram
   Nakama.game.scale.minWidth = 320;
   Nakama.game.scale.minHeight = 480;
   Nakama.game.scale.maxWidth = 640;
@@ -28,14 +28,28 @@ var preload = function(){
 }
 
 // initialize the game
-var create = function(){
+var create = function(){//Giống Oncreate
   Nakama.game.physics.startSystem(Phaser.Physics.ARCADE);
   Nakama.keyboard = Nakama.game.input.keyboard;
+  Nakama.game.add.sprite(0,0,'background')
+  Nakama.player = Nakama.game.add.sprite(200,200,'assets','Spaceship1-Player.png')
 }
 
 // update game state each frame
-var update = function(){
-
+var update = function(){//Vòng lặp game
+  if(Nakama.keyboard.isDown(Phaser.Keyboard.UP) && Nakama.player.position.y >= 0){
+    console.log("UP button pressed");
+    Nakama.player.position.y -= 10;
+  }
+  if(Nakama.keyboard.isDown(Phaser.Keyboard.DOWN) && Nakama.player.position.y <= 900){
+    Nakama.player.position.y += 10;
+  }
+  if(Nakama.keyboard.isDown(Phaser.Keyboard.LEFT) && Nakama.player.position.x >= 0){
+    Nakama.player.position.x -= 10;
+  }
+  if(Nakama.keyboard.isDown(Phaser.Keyboard.RIGHT) && Nakama.player.position.x <= 550){
+    Nakama.player.position.x += 10;
+  }
 }
 
 // before camera render (mostly for debug)
