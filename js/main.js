@@ -1,8 +1,23 @@
 var Nakama = {};
-Nakama.configs = {};
+Nakama.configs = {
+  GAME_WIDTH  : 640,
+  GAME_HEIGHT : 960,
+  MIN_WIDTH   : 320,
+  MIN_HEIGHT  : 480,
+  MAX_WIDTH   : 640,
+  MAX_HEIGHT  : 960,
+  PLAYER1_POS : {
+    x: 200,
+    y: 800
+  },
+  PLAYER2_POS : {
+    x: 400,
+    y: 800
+  }
+};
 
 window.onload = function(){//Giống Onstart Android
-  Nakama.game = new Phaser.Game(640,960,Phaser.AUTO,'',
+  Nakama.game = new Phaser.Game(Nakama.configs.GAME_WIDTH,Nakama.configs.GAME_HEIGHT,Phaser.AUTO,'',
     {
       preload: preload,
       create: create,
@@ -14,10 +29,10 @@ window.onload = function(){//Giống Onstart Android
 
 // preparations before game starts
 var preload = function(){//Giống hàm OnAttach trong android ->Load vào trong ram
-  Nakama.game.scale.minWidth = 320;
-  Nakama.game.scale.minHeight = 480;
-  Nakama.game.scale.maxWidth = 640;
-  Nakama.game.scale.maxHeight = 960;
+  Nakama.game.scale.minWidth = Nakama.configs.MIN_WIDTH;
+  Nakama.game.scale.minHeight = Nakama.configs.MIN_HEIGHT;
+  Nakama.game.scale.maxWidth = Nakama.configs.MAX_WIDTH;
+  Nakama.game.scale.maxHeight = Nakama.configs.MAX_HEIGHT;
   Nakama.game.scale.pageAlignHorizontally = true;
   Nakama.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 
@@ -31,25 +46,55 @@ var preload = function(){//Giống hàm OnAttach trong android ->Load vào trong
 var create = function(){//Giống Oncreate
   Nakama.game.physics.startSystem(Phaser.Physics.ARCADE);
   Nakama.keyboard = Nakama.game.input.keyboard;
-  Nakama.game.add.sprite(0,0,'background')
-  Nakama.player = Nakama.game.add.sprite(200,200,'assets','Spaceship1-Player.png')
+  Nakama.game.add.sprite(0,0,'background');
+
+  Nakama.players = [];
+  Nakama.players.push(
+    new ShipController(
+      Nakama.configs.PLAYER1_POS.x,
+      Nakama.configs.PLAYER1_POS.y,
+      'Spaceship1-Player.png',
+      {
+        up    : Phaser.Keyboard.UP,
+        down  : Phaser.Keyboard.DOWN,
+        left  : Phaser.Keyboard.LEFT,
+        right : Phaser.Keyboard.RIGHT,
+        fire  : Phaser.Keyboard.L
+      }
+    )
+  );
+  Nakama.players.push(
+    new ShipController(
+      Nakama.configs.PLAYER2_POS.x,
+      Nakama.configs.PLAYER2_POS.y,
+      'Spaceship1-Partner.png',
+      {
+        up    : Phaser.Keyboard.W,
+        down  : Phaser.Keyboard.S,
+        left  : Phaser.Keyboard.A,
+        right : Phaser.Keyboard.D,
+        fire  : Phaser.Keyboard.F
+      }
+    )
+  );
+  var x = Math.floor((Math.random()*320) + 100);
+  var y = Math.floor((Math.random()*320) + 100);
+  Nakama.players.push(
+    new EnemyShipController(
+      x,
+      y,
+      'EnemyType1.png',
+      {}
+    )
+  );
 }
 
 // update game state each frame
 var update = function(){//Vòng lặp game
-  if(Nakama.keyboard.isDown(Phaser.Keyboard.UP) && Nakama.player.position.y >= 0){
-    console.log("UP button pressed");
-    Nakama.player.position.y -= 10;
-  }
-  if(Nakama.keyboard.isDown(Phaser.Keyboard.DOWN) && Nakama.player.position.y <= 900){
-    Nakama.player.position.y += 10;
-  }
-  if(Nakama.keyboard.isDown(Phaser.Keyboard.LEFT) && Nakama.player.position.x >= 0){
-    Nakama.player.position.x -= 10;
-  }
-  if(Nakama.keyboard.isDown(Phaser.Keyboard.RIGHT) && Nakama.player.position.x <= 550){
-    Nakama.player.position.x += 10;
-  }
+    Nakama.players.forEach(function(ship){
+      ship.update();
+    }
+  );
 }
 
 // before camera render (mostly for debug)
